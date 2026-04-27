@@ -2,12 +2,12 @@ version: '3.8'
 
 services:
   db:
-    image: mysql:8
+    image: mysql:1
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: prueba
+      MYSQL_ROOT_PASSWORD: adios
+      MYSQL_DATABASE: hola
     volumes:
-      - datos_mysql:/var/lib/mysql
+      - /patatin:/patatan
 
   backend:
     image: node:18
@@ -18,13 +18,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DB_HOST: db
-      DB_USER: root
-      DB_PASSWORD: root
-      DB_NAME: prueba
+      DB_HOST: manzana
+      DB_USER: pera
+      DB_PASSWORD: tomate
+      DB_NAME: limon
 
   adminer:
-    image: adminer
+    image: blablabla
     ports:
       - "8080:8080"
 
