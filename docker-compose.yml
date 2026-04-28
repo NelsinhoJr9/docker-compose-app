@@ -1,32 +1,62 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:8
+  # --- BASE DE DATOS ---
+  mysql-db:
+    image: mysql:8.0
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: prueba
+      MYSQL_DATABASE: mibd
+    ports:
+      - "3306:3306"
     volumes:
-      - datos_mysql:/var/lib/mysql
+      - mysql_datos_persistentes:/var/lib/mysql
 
-  backend:
-    image: node:18
+  # --- EL COCINERO (BACKEND) ---
+  backend-node:
+    image: node:18-alpine
     working_dir: /app
-    volumes:
-      - ./backend:/app
-    command: "node app.js"
+    command: sh -c "npm install express mysql2 && node server.js"
     ports:
       - "3000:3000"
     environment:
-      DB_HOST: db
+      DB_HOST: mysql-db
       DB_USER: root
       DB_PASSWORD: root
-      DB_NAME: prueba
+      DB_NAME: mibd
+    depends_on:
+      - mysql-db
+    volumes:
+      - ./:/app
 
+  # --- EL MOZO (ADMINER) ---
   adminer:
     image: adminer
     ports:
       - "8080:8080"
+    depends_on:
+      - mysql-db
+
+  # --- LAS FLECHAS DEL PIZARRÓN (SIMULACIÓN WEB) ---
+  
+  # Versión estable para el cliente
+  nginx-prod:
+    image: nginx:alpine
+    container_name: servidor_produccion
+    ports:
+      - "80:80"
+    volumes:
+      - ./web-prod:/usr/share/nginx/html
+
+  # Versión de prueba para nosotros
+  nginx-dev:
+    image: nginx:alpine
+    container_name: servidor_desarrollo
+    ports:
+      - "8081:80"
+    volumes:
+      - ./web-dev:/usr/share/nginx/html
 
 volumes:
-  datos_mysql:
+  mysql_datos_persistentes:
